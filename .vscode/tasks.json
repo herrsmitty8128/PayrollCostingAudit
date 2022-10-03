@@ -7,7 +7,18 @@
             "label": "format files",
             "type": "shell",
             "command": "autopep8",
-            "args":["--in-place", "--max-line-length", "150", "--aggressive", "--aggressive", "app.py", "Element.py", "Employee.py", "Reconciliation.py", "Transaction.py"],
+            "args":[
+                "--in-place",
+                "--max-line-length",
+                "200",
+                "--aggressive",
+                "--aggressive",
+                "app.py",
+                "Element.py",
+                "Employee.py",
+                "Reconciliation.py",
+                "Transaction.py"
+            ],
             "group": {
 				"kind": "build",
 				"isDefault": true
@@ -25,7 +36,9 @@
             "label": "Run app.py",
             "type": "shell",
             "command": "${command:python.interpreterPath}",
-            "args":["app.py"],
+            "args":[
+                "app.py"
+            ],
             "group": {
 				"kind": "build",
 				"isDefault": true

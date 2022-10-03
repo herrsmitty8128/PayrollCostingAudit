@@ -166,9 +166,14 @@ class Tree:
         '''
 
         def net_pay_recalculates(employee: Employee.Employee, elements: dict) -> bool:
+            '''
+            This function recalculates the total net pay for an employee's payroll elements
+            and compares it to the net pay in the employee object. If the two are different,
+            then it indicates a technical issue with the original data file.
+            '''
             counter = Counter()
-            for element, tup in elements.items():
-                reconciled, unreconciled = tup
+            for element, pair_of_lists in elements.items():
+                reconciled, unreconciled = pair_of_lists
                 counter[element.payroll_category] += sum(x.amount for x in reconciled if isinstance(x, Transaction.Payroll))
                 counter[element.payroll_category] += sum(x.amount for x in unreconciled if isinstance(x, Transaction.Payroll))
             total = counter['Standard Earnings']
@@ -250,17 +255,29 @@ class Tree:
                 # The unreconciled debits and credits must balance. Otherwise a reconciliation
                 # can not be reliably performed. This typically indicates a technical issue
                 # with the dataset and probably the original input file.
-                if round(sum(x.amount for x in unreconciled if isinstance(x, Transaction.Costing)), 2) != 0.0:
-                    raise ValueError(f'Debits do not equal credits for "{element.payroll_name}" for employee {employee.number}.')
+                if round(sum(entry.amount for entry in unreconciled if isinstance(entry, Transaction.Costing)), 2) != 0.0:
+                    raise ValueError(f'Reconciliation can not be performed because unreconciled debits do not equal unreconciled credits for "{element.costing_name}" for employee {employee.number}.')
 
                 # Try different methods to reconcile the payroll and costing entries.
                 normal_costing_entry(element, reconciled, unreconciled)
                 departmental_reclass(reconciled, unreconciled)
                 brute_force_method(element, reconciled, unreconciled)
 
-                # If we get this far, and there are unreconciled entries, then log an error.
+                # If any unreconciled entries remain, then log an error.
                 if len(unreconciled) > 0:
-                    errors.append({'Description': f'Costing does not reconcile for "{element.payroll_name}"', 'Employee': employee.number})
+                    errors.append({'Description': f'Reconciliation could not be completed for "{element.payroll_name}"', 'Employee': employee.number})
+
+                # If the reconciled debits and credits do not balance, then log an error.
+                if round(sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Costing)), 2) != 0.0:
+                    raise ValueError(f'Unreconciled debits do not equal unreconciled credits for "{element.payroll_name}" for employee {employee.number}.')
+
+                # If there is an unreconciled difference between the payroll transaction(s) and
+                # the costing transactions, then log an error.
+                p = sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Payroll))
+                c = sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Costing) and trans.account in element.debit_accounts)
+                diff = round(p - c, 2)
+                if diff != 0.0:
+                    errors.append({'Description': f'Unreconciled difference between payroll and costing elements = {diff} "{element.payroll_name}" was detected', 'Employee': employee.number})
 
         return errors
 
