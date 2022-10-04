@@ -15,8 +15,9 @@
         ""
     ],
     "Output File": "",
-    "User Installed Module Paths": [
+    "Local Install Paths": [
         "c:\\users\\smitchris\\appdata\\roaming\\python\\python39\\site-packages",
         "C:\\Users\\smitchris\\AppData\\Roaming\\Python\\Python39\\Scripts"
-    ]
+    ],
+    "Elements File": "./config files/elements.csv"
 }

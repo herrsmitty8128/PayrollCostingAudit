@@ -71,12 +71,10 @@ class Parser:
         'Credit Account'
     ])
 
-    input_file = r'\\ihsnas1.net.inova.org\smitchris\MYDOCS\Projects\Payroll costing audit\config files\elements.csv'
+    #input_file = r'\\ihsnas1.net.inova.org\smitchris\MYDOCS\Projects\Payroll costing audit\config files\elements.csv'
 
     @staticmethod
-    def parse(filename: str = None) -> dict:
-        if filename is None:
-            filename = Parser.input_file
+    def parse(filename: str) -> dict:
         elements = ElementTable()
         with open(filename, 'r', newline='') as csvfile:
             reader = csv.DictReader(csvfile)

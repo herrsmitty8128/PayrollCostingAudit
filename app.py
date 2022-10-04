@@ -184,8 +184,9 @@ def get_config() -> tuple:
     output_file = './output files/' + data['Output File'] + ' ' + \
         datetime.today().isoformat(sep=' ', timespec='minutes').replace(':', '') + '.xlsx'
     name_substitutions = data['Name Substitutions']
-    user_paths = data['User Installed Module Paths']
-    return (input_files, output_file, name_substitutions, user_paths)
+    user_paths = data['Local Install Paths']
+    elements = data['Elements File']
+    return (input_files, output_file, name_substitutions, user_paths, elements)
 
 
 if __name__ == '__main__':
@@ -195,14 +196,14 @@ if __name__ == '__main__':
     # sys.path.append(r'C:\Users\smitchris\AppData\Roaming\Python\Python39\Scripts')
 
     print('Loading the configuration file...')
-    input_files, output_file, name_substitutions, user_paths = get_config()
+    input_files, output_file, name_substitutions, user_paths, elements = get_config()
 
     # add the user installed paths to our system path so we can load locally installed modules
     for p in user_paths:
         sys.path.append(p)
 
     print('Parsing the element lookup table...')
-    element_table = Element.Parser.parse()
+    element_table = Element.Parser.parse(elements)
 
     print('Parsing the payroll files...')
     tree, errors = Reconciliation.Tree.build(input_files, element_table, name_substitutions)
