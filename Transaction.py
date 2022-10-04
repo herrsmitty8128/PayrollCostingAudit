@@ -1,5 +1,4 @@
 
-import csv
 import Element
 import Employee
 
@@ -70,65 +69,61 @@ class Costing(Transaction):
         return self.company == other.company and self.department == other.department and self.account == other.account and self.amount == other.amount
 
     @staticmethod
-    def build(csv_row: dict, element_table: Element.ElementTable) -> tuple:
+    def build(csv_row: dict, element_table: Element.ElementTable, name_substitutions: dict) -> tuple:
 
+        # retrieve and convert all the values that we need
         try:
+            emp_id = int(csv_row['Employee Number'].strip())
+            element = csv_row['Element'].strip()
+            company = int(csv_row['Company_PC'].strip())
+            department = int(csv_row['Department_PC'].strip())
+            account = int(csv_row['Account_PC'].strip())
             uom = csv_row['Unit of Measure'].strip()
             dr = float(csv_row['Debit Amount'].strip())
             cr = float(csv_row['Credit Amount'].strip())
-        except BaseException:
-            return (None, None, None)
+            amount = round(dr - cr, 2)
+        except BaseException as err:
+            raise ValueError(f'An error was encountered while building a CostingTransaction object: {err}')
+
+        # filter-out hours and zero dollar amounts
 
         if uom != 'Money' or (dr == 0.0 and cr == 0.0):
-            return (None, None, None)
+            return (None, None, None)        
 
-        # parse the employee id
-        emp_id = int(csv_row['Employee Number'].strip())
-        if emp_id == 0:
-            raise ValueError('Employee ID can not be zero.')
+        # make any required element name substitutions
 
-        # parse the element
-        if 'Work State Income Tax' in csv_row['Element']:
-            element = 'Residence State Income Tax'
-        elif 'Residence State Supplemental Income Tax' in csv_row['Element']:
-            element = 'Residence State Income Tax'
-        elif 'Federal Income Tax Not Taken' in csv_row['Element']:
-            element = 'Federal Income Tax'
-        elif 'Residence State Income Tax Not Taken' in csv_row['Element']:
-            element = 'Residence State Income Tax'
-        elif 'Medicare Employee Tax Not Taken' in csv_row['Element']:
-            element = 'Medicare Employee Tax'
-        elif 'Social Security Employee Tax Not Taken' in csv_row['Element']:
-            element = 'Social Security Employee Tax'
-        elif 'Work City Income Tax' in csv_row['Element']:
-            element = 'Residence City Income Tax'
-        else:
-            element = csv_row['Element'].strip()
+        for name,substitution in name_substitutions.items():
+            if name in element:
+                element = substitution
+                break
+
+        # lookup the element and verify its values
 
         element = element_table.find_by_costing_name(element)
 
         if element is None:
             raise ValueError(f'{csv_row["Element"]} on the costing files does not exist in the element lookup table.')
+        
+        if not element.should_cost:
+            return (None, None, None)
 
-        # parse the company number
-        company = int(csv_row['Company_PC'].strip())
+        if account not in element.debit_accounts and account not in element.credit_accounts:
+            raise ValueError(f'{account} for element {element.costing_name} does not exist in the element lookup table')
+        
+        # the employee id, company, department, and account can not be zero
+
+        if emp_id == 0:
+            raise ValueError('Employee ID can not be zero.')
+
         if company == 0:
             raise ValueError('Company number can not be zero.')
 
-        # parse the department number
-        department = int(csv_row['Department_PC'].strip())
         if department == 0:
             raise ValueError('Department number can not be zero.')
 
-        # parse the account number
-        account = int(csv_row['Account_PC'].strip())
         if account == 0:
             raise ValueError('Account number can not be zero.')
 
-        # calculate the amount
-        amount = round(dr - cr, 2)
-        if account not in element.debit_accounts and account not in element.credit_accounts:
-            raise ValueError(f'{account} for element {element.costing_name} does not exist in the element lookup table')
         return (Employee.Employee(emp_id), element, Costing(company, department, account, amount))
 
 
@@ -147,7 +142,7 @@ class Payroll(Transaction):
         super().__init__(amount)
 
     @staticmethod
-    def build(csv_row: dict, element_table: Element.ElementTable) -> tuple:
+    def build(csv_row: dict, element_table: Element.ElementTable, name_substitutions: dict) -> tuple:
 
         try:
             category = csv_row['Balance Category'].strip()
@@ -172,10 +167,21 @@ class Payroll(Transaction):
 
         if element == 'Tuition Non Cash':
             return (None, None, None)
+        
+        # make any required element name substitutions
+
+        for name,substitution in name_substitutions.items():
+            if name in element:
+                element = substitution
+                break
 
         element = element_table.find_by_payroll_name(element)
+        
         if element is None:
             raise ValueError(f'{csv_row["Balance Name"]} on the payroll register does not exist in the element lookup table.')
+        
+        if not element.should_cost:
+            return (None, None, None)
 
         gross_pay = float(csv_row['Gross Pay'].replace(',', '').strip())
 

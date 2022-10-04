@@ -1,0 +1,22 @@
+{
+    "Name Substitutions": {
+        "Work State Income Tax": "Residence State Income Tax",
+        "Residence State Supplemental Income Tax": "Residence State Income Tax",
+        "Federal Income Tax Not Taken": "Federal Income Tax",
+        "Residence State Income Tax Not Taken": "Residence State Income Tax",
+        "Medicare Employee Tax Not Taken": "Medicare Employee Tax",
+        "Social Security Employee Tax Not Taken": "Social Security Employee Tax",
+        "Work City Income Tax": "Residence City Income Tax",
+        "Bonus Day Off With Pay": "Regular"
+    },
+    "Input Files": [
+        "",
+        "",
+        ""
+    ],
+    "Output File": "",
+    "User Installed Module Paths": [
+        "c:\\users\\smitchris\\appdata\\roaming\\python\\python39\\site-packages",
+        "C:\\Users\\smitchris\\AppData\\Roaming\\Python\\Python39\\Scripts"
+    ]
+}

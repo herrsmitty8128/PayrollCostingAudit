@@ -177,29 +177,35 @@ def create_xlsx_with_tables(file_name: str, descriptors: list) -> None:
 
 
 def get_config() -> tuple:
-    file_name = os.path.abspath('./config files/config.txt')
+    file_name = os.path.abspath('./config files/config.json')
     with open(file_name) as f:
         data = json.load(f)
     input_files = ['./input files/' + f + '.csv' for f in data['Input files']]
-    output_file = './output files/' + data['Output file name'] + ' ' + \
+    output_file = './output files/' + data['Output File'] + ' ' + \
         datetime.today().isoformat(sep=' ', timespec='minutes').replace(':', '') + '.xlsx'
-    return (input_files, output_file)
+    name_substitutions = data['Name Substitutions']
+    user_paths = data['User Installed Module Paths']
+    return (input_files, output_file, name_substitutions, user_paths)
 
 
 if __name__ == '__main__':
 
     # add the paths for locally installed modules
-    sys.path.append(r'c:\users\smitchris\appdata\roaming\python\python39\site-packages')
-    sys.path.append(r'C:\Users\smitchris\AppData\Roaming\Python\Python39\Scripts')
+    # sys.path.append(r'c:\users\smitchris\appdata\roaming\python\python39\site-packages')
+    # sys.path.append(r'C:\Users\smitchris\AppData\Roaming\Python\Python39\Scripts')
 
     print('Loading the configuration file...')
-    filenames, analysis_file = get_config()
+    input_files, output_file, name_substitutions, user_paths = get_config()
+
+    # add the user installed paths to our system path so we can load locally installed modules
+    for p in user_paths:
+        sys.path.append(p)
 
     print('Parsing the element lookup table...')
     element_table = Element.Parser.parse()
 
     print('Parsing the payroll files...')
-    tree, errors = Reconciliation.Tree.build(filenames, element_table)
+    tree, errors = Reconciliation.Tree.build(input_files, element_table, name_substitutions)
 
     if len(errors) > 0:
         print('PARSE ERRORS:')
@@ -224,7 +230,7 @@ if __name__ == '__main__':
     rows, headers = tree.build_summary_table()
     df3 = pd.DataFrame(rows, columns=headers)
 
-    print('Writing tables to', analysis_file)
+    print('Writing tables to', output_file)
     desc = [{'sheet_name': 'Problematic Entries',
              'data_frame': df1,
              'display_name': 'Problematic_Entries'},
@@ -238,6 +244,6 @@ if __name__ == '__main__':
              'data_frame': df0,
             'display_name': 'Errors'}]
 
-    create_xlsx_with_tables(analysis_file, desc)
+    create_xlsx_with_tables(output_file, desc)
 
     print('RECONCILIATION COMPLETE.')

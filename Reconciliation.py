@@ -29,7 +29,7 @@ class Tree:
     def __calc_diff__(self, employee: Employee.Employee, element: Element.Element, reconciled: list, unreconciled: list) -> float:
         pr = round(sum(x.amount for x in reconciled if isinstance(x, Transaction.Payroll)), 2)
         cost = round(sum(x.amount for x in reconciled if isinstance(x, Transaction.Costing) and x.account in element.debit_accounts), 2)
-        if pr != cost:
+        if abs(pr) != abs(cost):
             raise ValueError(f'Invalid correcting je detected for {element.payroll_name} for employee {employee.number}.')
         pr = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Payroll))
         cost = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Costing) and x.account in element.debit_accounts)
@@ -269,7 +269,7 @@ class Tree:
 
                 # If the reconciled debits and credits do not balance, then log an error.
                 if round(sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Costing)), 2) != 0.0:
-                    raise ValueError(f'Unreconciled debits do not equal unreconciled credits for "{element.payroll_name}" for employee {employee.number}.')
+                    raise ValueError(f'Reconciled debits do not equal reconciled credits for "{element.payroll_name}" for employee {employee.number}.')
 
                 # If there is an unreconciled difference between the payroll transaction(s) and
                 # the costing transactions, then log an error.
@@ -277,14 +277,14 @@ class Tree:
                 c = sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Costing) and trans.account in element.debit_accounts)
                 diff = round(p - c, 2)
                 if diff != 0.0:
-                    errors.append({'Description': f'Unreconciled difference between payroll and costing elements = {diff} "{element.payroll_name}" was detected', 'Employee': employee.number})
+                    errors.append({'Description': f'Unreconciled difference of ${diff} between payroll and costing elements was detected for "{element.payroll_name}"', 'Employee': employee.number})
 
         return errors
 
     @staticmethod
-    def build(input_files: list, element_table: Element.ElementTable) -> tuple:
+    def build(input_files: list, element_table: Element.ElementTable, name_substitutions: dict) -> tuple:
 
-        def update_ee(employee, employees):
+        def update_ee(employee: Employee.Employee, employees: dict) -> Employee.Employee:
             ee = employees.get(employee.number, None)
             if ee:
                 ee.add_net_pay(employee)
@@ -321,7 +321,7 @@ class Tree:
                 print('Parsing file', csvfile.name)
                 for row in reader:
                     try:
-                        employee, element, transaction = build(row, element_table)
+                        employee, element, transaction = build(row, element_table, name_substitutions)
                         if isinstance(employee, Employee.Employee):
                             employee = update_ee(employee, employees)
                             add_unreconciled(tree.tree, employee, element, transaction)
