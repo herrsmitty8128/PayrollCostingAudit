@@ -93,7 +93,7 @@ class Costing(Transaction):
         # make any required element name substitutions
 
         for name, substitution in name_substitutions.items():
-            if name in element:
+            if name.casefold() in element.casefold():
                 element = substitution
                 break
 
@@ -109,8 +109,6 @@ class Costing(Transaction):
 
         if account not in element.debit_accounts and account not in element.credit_accounts:
             raise ValueError(f'{account} for element {element.costing_name} does not exist in the element lookup table')
-
-        # the employee id, company, department, and account can not be zero
 
         if emp_id == 0:
             raise ValueError('Employee ID can not be zero.')
@@ -132,9 +130,9 @@ class Payroll(Transaction):
     # the minimum fields that must be present in a payroll register file
     fieldnames = set([
         'Person Number',
-        'Gross Pay',
         'Net Pay',
         'Balance Name',
+        'Balance Category',
         'Current'
     ])
 
@@ -145,11 +143,10 @@ class Payroll(Transaction):
     def build(csv_row: dict, element_table: Element.ElementTable, name_substitutions: dict) -> tuple:
 
         try:
-            element = csv_row['Balance Name'].strip()
             emp_id = int(csv_row['Person Number'].strip())
+            element = csv_row['Balance Name'].strip()
             category = csv_row['Balance Category'].strip()
             amount = float(csv_row['Current'].replace(',', '').strip())
-            # gross_pay = float(csv_row['Gross Pay'].replace(',', '').strip())
             net_pay = float(csv_row['Net Pay'].replace(',', '').strip())
         except Exception as err:
             raise ValueError(f'An error was encountered while building a Payroll Transaction object: {err}')
@@ -167,7 +164,7 @@ class Payroll(Transaction):
         # make any required element name substitutions
 
         for name, substitution in name_substitutions.items():
-            if name in element:
+            if name.casefold() in element.casefold():
                 element = substitution
                 break
 
