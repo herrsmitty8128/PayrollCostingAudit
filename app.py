@@ -58,7 +58,7 @@ def get_config() -> tuple:
     file_name = os.path.abspath('./config files/config.json')
     with open(file_name) as f:
         data = json.load(f)
-    input_files = ['./input files/' + f + '.csv' for f in data['Input files']]
+    input_files = ['./input files/' + f + '.csv' for f in data['Input Files']]
     output_file = './output files/' + data['Output File'] + ' ' + datetime.today().isoformat(sep=' ', timespec='minutes').replace(':', '') + '.xlsx'
     name_substitutions = data['Name Substitutions']
     for user_path in data['Local Install Paths']:

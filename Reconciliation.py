@@ -307,7 +307,6 @@ class Tree:
         tree = Tree()
         errors = []
         employees = {}
-        element_table = Element.Parser.parse()
 
         for f in input_files:
             with open(f, 'r', newline='') as csvfile:
