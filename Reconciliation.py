@@ -313,15 +313,15 @@ class Tree:
             with open(f, 'r', newline='') as csvfile:
                 reader = csv.DictReader(csvfile)
                 if Transaction.Costing.fieldnames.issubset(set(reader.fieldnames)):
-                    build = Transaction.Costing.build
+                    build_transaction = Transaction.Costing.build
                 elif Transaction.Payroll.fieldnames.issubset(set(reader.fieldnames)):
-                    build = Transaction.Payroll.build
+                    build_transaction = Transaction.Payroll.build
                 else:
-                    raise SyntaxError(f'{csvfile.name} does not contain the correct headers.')
+                    raise SyntaxError(f'{csvfile.name} does not contain the correct headers for a payroll register or costing file.')
                 print('Parsing file', csvfile.name)
                 for row in reader:
                     try:
-                        employee, element, transaction = build(row, element_table, name_substitutions)
+                        employee, element, transaction = build_transaction(row, element_table, name_substitutions)
                         if isinstance(employee, Employee.Employee):
                             employee = update_ee(employee, employees)
                             add_unreconciled(tree.tree, employee, element, transaction)

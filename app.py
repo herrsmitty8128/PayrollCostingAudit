@@ -29,6 +29,11 @@ def create_xlsx_with_tables(file_name: str, descriptors: list) -> None:
 
     file_name = os.path.abspath(file_name)
 
+    xlscols = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+    for i in range(26):
+        for j in range(26):
+            xlscols.append(xlscols[i] + xlscols[j])
+
     with pd.ExcelWriter(file_name) as writer:
         for desc in descriptors:
             df = desc['data_frame']
@@ -40,133 +45,6 @@ def create_xlsx_with_tables(file_name: str, descriptors: list) -> None:
 
     for desc in descriptors:
         df = desc['data_frame']
-        xlscols = [
-            'A', 'B', 'C', 'D', 'E', 'F',
-            'G',
-            'H',
-            'I',
-            'J',
-            'K',
-            'L',
-            'M',
-            'N',
-            'O',
-            'P',
-            'Q',
-            'R',
-            'S',
-            'T',
-            'U',
-            'V',
-            'W',
-            'X',
-            'Y',
-            'Z',
-            'AA',
-            'AB',
-            'AC',
-            'AD',
-            'AE',
-            'AF',
-            'AG',
-            'AH',
-            'AI',
-            'AJ',
-            'AK',
-            'AL',
-            'AM',
-            'AN',
-            'AO',
-            'AP',
-            'AQ',
-            'AR',
-            'AS',
-            'AT',
-            'AU',
-            'AV',
-            'AW',
-            'AX',
-            'AY',
-            'AZ',
-            'BA',
-            'BB',
-            'BC',
-            'BD',
-            'BE',
-            'BF',
-            'BG',
-            'BH',
-            'BI',
-            'BJ',
-            'BK',
-            'BL',
-            'BM',
-            'BN',
-            'BO',
-            'BP',
-            'BQ',
-            'BR',
-            'BS',
-            'BT',
-            'BU',
-            'BV',
-            'BW',
-            'BX',
-            'BY',
-            'BZ',
-            'CA',
-            'CB',
-            'CC',
-            'CD',
-            'CE',
-            'CF',
-            'CG',
-            'CH',
-            'CI',
-            'CJ',
-            'CK',
-            'CL',
-            'CM',
-            'CN',
-            'CO',
-            'CP',
-            'CQ',
-            'CR',
-            'CS',
-            'CT',
-            'CU',
-            'CV',
-            'CW',
-            'CX',
-            'CY',
-            'CZ',
-            'DA',
-            'DB',
-            'DC',
-            'DD',
-            'DE',
-            'DF',
-            'DG',
-            'DH',
-            'DI',
-            'DJ',
-            'DK',
-            'DL',
-            'DM',
-            'DN',
-            'DO',
-            'DP',
-            'DQ',
-            'DR',
-            'DS',
-            'DT',
-            'DU',
-            'DV',
-            'DW',
-            'DX',
-            'DY',
-            'DZ']
-
         rows = df.shape[0] + 1
         cols = xlscols[df.shape[1]]
         refs = f'A1:{cols}{rows}'
@@ -181,26 +59,18 @@ def get_config() -> tuple:
     with open(file_name) as f:
         data = json.load(f)
     input_files = ['./input files/' + f + '.csv' for f in data['Input files']]
-    output_file = './output files/' + data['Output File'] + ' ' + \
-        datetime.today().isoformat(sep=' ', timespec='minutes').replace(':', '') + '.xlsx'
+    output_file = './output files/' + data['Output File'] + ' ' + datetime.today().isoformat(sep=' ', timespec='minutes').replace(':', '') + '.xlsx'
     name_substitutions = data['Name Substitutions']
-    user_paths = data['Local Install Paths']
+    for user_path in data['Local Install Paths']:
+        sys.path.append(user_path)
     elements = data['Elements File']
-    return (input_files, output_file, name_substitutions, user_paths, elements)
+    return (input_files, output_file, name_substitutions, elements)
 
 
 if __name__ == '__main__':
 
-    # add the paths for locally installed modules
-    # sys.path.append(r'c:\users\smitchris\appdata\roaming\python\python39\site-packages')
-    # sys.path.append(r'C:\Users\smitchris\AppData\Roaming\Python\Python39\Scripts')
-
     print('Loading the configuration file...')
-    input_files, output_file, name_substitutions, user_paths, elements = get_config()
-
-    # add the user installed paths to our system path so we can load locally installed modules
-    for p in user_paths:
-        sys.path.append(p)
+    input_files, output_file, name_substitutions, elements = get_config()
 
     print('Parsing the element lookup table...')
     element_table = Element.Parser.parse(elements)
@@ -213,6 +83,7 @@ if __name__ == '__main__':
         for err in errors:
             print(err)
         print('Number of parse errors:', len(errors))
+    
     print('Number of parsed employees:', len(tree.tree))
 
     print('Reconciling payroll transactions...')

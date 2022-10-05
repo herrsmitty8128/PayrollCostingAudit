@@ -82,17 +82,17 @@ class Costing(Transaction):
             dr = float(csv_row['Debit Amount'].strip())
             cr = float(csv_row['Credit Amount'].strip())
             amount = round(dr - cr, 2)
-        except BaseException as err:
+        except Exception as err:
             raise ValueError(f'An error was encountered while building a CostingTransaction object: {err}')
 
         # filter-out hours and zero dollar amounts
 
         if uom != 'Money' or (dr == 0.0 and cr == 0.0):
-            return (None, None, None)        
+            return (None, None, None)
 
         # make any required element name substitutions
 
-        for name,substitution in name_substitutions.items():
+        for name, substitution in name_substitutions.items():
             if name in element:
                 element = substitution
                 break
@@ -103,13 +103,13 @@ class Costing(Transaction):
 
         if element is None:
             raise ValueError(f'{csv_row["Element"]} on the costing files does not exist in the element lookup table.')
-        
+
         if not element.should_cost:
             return (None, None, None)
 
         if account not in element.debit_accounts and account not in element.credit_accounts:
             raise ValueError(f'{account} for element {element.costing_name} does not exist in the element lookup table')
-        
+
         # the employee id, company, department, and account can not be zero
 
         if emp_id == 0:
@@ -145,46 +145,38 @@ class Payroll(Transaction):
     def build(csv_row: dict, element_table: Element.ElementTable, name_substitutions: dict) -> tuple:
 
         try:
+            element = csv_row['Balance Name'].strip()
+            emp_id = int(csv_row['Person Number'].strip())
             category = csv_row['Balance Category'].strip()
             amount = float(csv_row['Current'].replace(',', '').strip())
-        except BaseException:
+            # gross_pay = float(csv_row['Gross Pay'].replace(',', '').strip())
+            net_pay = float(csv_row['Net Pay'].replace(',', '').strip())
+        except Exception as err:
+            raise ValueError(f'An error was encountered while building a Payroll Transaction object: {err}')
+
+        # ignore rows in the csv file that are zero, imputed, or represent hours
+        if amount == 0.0 or 'Imputed'.casefold() in category.casefold() or 'Hours'.casefold() in category.casefold():
             return (None, None, None)
 
-        if amount == 0.0 or 'Imputed' in category or 'Hours' in category:
-            return (None, None, None)
-
-        # parse the employee id
-        emp_id = int(csv_row['Person Number'].strip())
         if emp_id == 0:
             raise ValueError('Employee ID can not be zero.')
 
-        # parse the element
-        element = csv_row['Balance Name'].strip()
-
-        # if element == 'Bonus Day Off With Pay':
-
-        #    element = 'Regular'
-
         if element == 'Tuition Non Cash':
             return (None, None, None)
-        
+
         # make any required element name substitutions
 
-        for name,substitution in name_substitutions.items():
+        for name, substitution in name_substitutions.items():
             if name in element:
                 element = substitution
                 break
 
         element = element_table.find_by_payroll_name(element)
-        
+
         if element is None:
             raise ValueError(f'{csv_row["Balance Name"]} on the payroll register does not exist in the element lookup table.')
-        
+
         if not element.should_cost:
             return (None, None, None)
-
-        gross_pay = float(csv_row['Gross Pay'].replace(',', '').strip())
-
-        net_pay = float(csv_row['Net Pay'].replace(',', '').strip())
 
         return (Employee.Employee(emp_id, net_pay), element, Payroll(amount))
