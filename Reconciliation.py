@@ -68,7 +68,7 @@ class Tree:
         return (summary_table, fields)
 
     def build_correcting_je(self) -> tuple:
-        
+
         entries = []
         fields = ['Category', 'Element', 'Employee', 'Company', 'Department', 'Account', 'Amount', 'Description']
 
@@ -81,14 +81,17 @@ class Tree:
                        'Account': acct,
                        'Amount': round(amt, 2),
                        'Description': msg})
-        
+
         for employee, elements in self.tree.items():
             for element, pair_of_lists in elements.items():
+                
                 reconciled, unreconciled = pair_of_lists
+                
                 je = []
                 payroll_trans = [x for x in unreconciled if isinstance(x, Transaction.Payroll)]
                 costing_trans = [x for x in unreconciled if isinstance(x, Transaction.Costing)]
                 msg = f'Rev cost err for {employee.number}'
+                
                 if len(payroll_trans) == 0:
                     # reverse the erronious costing entries
                     for c in costing_trans:
@@ -107,17 +110,21 @@ class Tree:
                     for p in payroll_trans:
                         post(je, element.payroll_category, element.payroll_name, employee.number, 1100, dr_dept, dr_acct, p.amount, msg)
                         post(je, element.payroll_category, element.payroll_name, employee.number, 1100, cr_dept, cr_acct, -p.amount, msg)
+                
                 # add the je to the list
                 entries.extend(je)
+                
                 # verify the accruacy of the correcting je
                 diff = self.__calc_diff__(employee, element, reconciled, unreconciled)
                 diff -= sum(x['Amount'] for x in je if int(x['Account']) in element.debit_accounts)
+                
                 # if there are unreconciled payroll transactions and the difference is not zero, then raise and exception
                 # or if the sum of debits and credits in the correcting je is not zero, then raise an exception
                 if (len(payroll_trans) > 1 and round(diff, 2) != 0.0) or round(sum(x['Amount'] for x in je), 2) != 0.0:
                     for x in unreconciled:
                         print(x)
                     raise ValueError(f'Unable to calculate correcting je for {element.payroll_name} for employee {employee.number}')
+        
         return (entries, fields)
 
     def build_unreconciled_entries(self) -> tuple:
@@ -139,28 +146,28 @@ class Tree:
                             'Account': account,
                             'Amount': round(amount, 2),
                             'Description': note})
-        
+
         for employee, elements in self.tree.items():
             for element, pair_of_lists in elements.items():
+
                 _, unreconciled = pair_of_lists
+
                 note = ''
                 costing = [x for x in unreconciled if isinstance(x, Transaction.Costing)]
                 payroll = [x for x in unreconciled if isinstance(x, Transaction.Payroll)]
-                if len(costing) > 0 and len(payroll) > 0:
+
+                cost_len = len(costing)
+                payroll_len = len(payroll)
+
+                if cost_len > 0 and payroll_len > 0:
                     note = 'Costing and payroll dollar amounts are different'
-                if len(costing) > 0 and len(payroll) == 0:
+                if cost_len > 0 and payroll_len == 0:
                     note = 'Costing file entry does not have a corresponding payroll register entry'
-                if len(costing) == 0 and len(payroll) > 0:
+                if cost_len == 0 and payroll_len > 0:
                     note = 'Payroll register entry was not costed'
+
                 for tran in costing:
-                    post('Costing files', element.costing_category,
-                         element.costing_name,
-                         employee,
-                         tran.company,
-                         tran.department,
-                         tran.account,
-                         tran.amount,
-                         note)
+                    post('Costing files', element.costing_category, element.costing_name, employee, tran.company, tran.department, tran.account, tran.amount, note)
 
                 for tran in payroll:
                     post('Payroll register', element.payroll_category, element.payroll_name, employee, 'n/a', 'n/a', 'n/a', tran.amount, note)
@@ -169,8 +176,9 @@ class Tree:
 
     def reconcile(self) -> list:
         '''
-        This nested function attempts to reconcile all payroll and costing entries.
-
+        This nested function attempts to reconcile all payroll and costing entries. It also validates
+        the reconciled entries after they are reconciled for each element and employee. It does not do
+        anything with unreconciled entries after the reconciliation process is completed.
         '''
 
         def net_pay_recalculates(employee: Employee.Employee, elements: dict) -> bool:

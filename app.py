@@ -29,7 +29,7 @@ def create_xlsx_with_tables(file_name: str, descriptors: list) -> None:
 
     file_name = os.path.abspath(file_name)
 
-    xlscols = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+    xlscols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     for i in range(26):
         for j in range(26):
             xlscols.append(xlscols[i] + xlscols[j])
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         for err in errors:
             print(err)
         print('Number of parse errors:', len(errors))
-    
+
     print('Number of parsed employees:', len(tree.tree))
 
     print('Reconciling payroll transactions...')
