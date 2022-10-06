@@ -68,6 +68,7 @@ class Tree:
         return (summary_table, fields)
 
     def build_correcting_je(self) -> tuple:
+        
         entries = []
         fields = ['Category', 'Element', 'Employee', 'Company', 'Department', 'Account', 'Amount', 'Description']
 
@@ -80,6 +81,7 @@ class Tree:
                        'Account': acct,
                        'Amount': round(amt, 2),
                        'Description': msg})
+        
         for employee, elements in self.tree.items():
             for element, pair_of_lists in elements.items():
                 reconciled, unreconciled = pair_of_lists
@@ -119,6 +121,11 @@ class Tree:
         return (entries, fields)
 
     def build_unreconciled_entries(self) -> tuple:
+        '''
+        This fuction iterates over all unreconciled elements and produces a list of the reasons
+        that those elements were not able to be reconciled. It returns a tuple containing a list
+        of the entries and a list of the corresponding header values.
+        '''
         entries = []
         fields = ['Source', 'Category', 'Element', 'Employee', 'Company', 'Department', 'Account', 'Amount', 'Description']
 
@@ -132,6 +139,7 @@ class Tree:
                             'Account': account,
                             'Amount': round(amount, 2),
                             'Description': note})
+        
         for employee, elements in self.tree.items():
             for element, pair_of_lists in elements.items():
                 _, unreconciled = pair_of_lists
@@ -263,7 +271,7 @@ class Tree:
                 departmental_reclass(reconciled, unreconciled)
                 brute_force_method(element, reconciled, unreconciled)
 
-                # If any unreconciled entries remain, then log an error.
+                # If any unreconciled transactions remain, then log an error.
                 if len(unreconciled) > 0:
                     errors.append({'Description': f'Reconciliation could not be completed for "{element.payroll_name}"', 'Employee': employee.number})
 

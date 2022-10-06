@@ -4,7 +4,7 @@ class Employee:
 
     def __init__(self, number: int, net_pay: float = 0.0):
         if not isinstance(number, int):
-            raise ValueError('Employee number must be an interger type.')
+            raise ValueError('Employee number must be an integer type.')
         if not isinstance(net_pay, float):
             raise ValueError('Net pay must be a float type.')
         self.number = number
