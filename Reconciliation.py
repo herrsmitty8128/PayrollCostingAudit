@@ -27,10 +27,6 @@ class Tree:
         self.tree = {}
 
     def __calc_diff__(self, employee: Employee.Employee, element: Element.Element, reconciled: list, unreconciled: list) -> float:
-        #pr = round(sum(x.amount for x in reconciled if isinstance(x, Transaction.Payroll)), 2)
-        #cost = round(sum(x.amount for x in reconciled if isinstance(x, Transaction.Costing) and x.account in element.debit_accounts), 2)
-        #if abs(pr) != abs(cost):
-        #    raise ValueError(f'Invalid correcting je detected for {element.payroll_name} for employee {employee.number}.')
         pr = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Payroll))
         cost = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Costing) and x.account in element.debit_accounts)
         return round(pr - cost, 2)
