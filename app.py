@@ -83,39 +83,39 @@ if __name__ == '__main__':
         for err in errors:
             print(err)
         print('Number of parse errors:', len(errors))
+    else:
+        print('Number of parsed employees:', len(tree.tree))
 
-    print('Number of parsed employees:', len(tree.tree))
+        print('Reconciling payroll transactions...')
+        errors = tree.reconcile()
+        df0 = pd.DataFrame(errors)
 
-    print('Reconciling payroll transactions...')
-    errors = tree.reconcile()
-    df0 = pd.DataFrame(errors)
+        print('Building the table of problematic entries...')
+        rows, headers = tree.build_unreconciled_entries()
+        df1 = pd.DataFrame(rows, columns=headers)
 
-    print('Building the table of problematic entries...')
-    rows, headers = tree.build_unreconciled_entries()
-    df1 = pd.DataFrame(rows, columns=headers)
+        print('Building the correcting JE...')
+        rows, headers = tree.build_correcting_je()
+        df2 = pd.DataFrame(rows, columns=headers)
 
-    print('Building the correcting JE...')
-    rows, headers = tree.build_correcting_je()
-    df2 = pd.DataFrame(rows, columns=headers)
+        print('Building the summary table...')
+        rows, headers = tree.build_summary_table()
+        df3 = pd.DataFrame(rows, columns=headers)
 
-    print('Building the summary table...')
-    rows, headers = tree.build_summary_table()
-    df3 = pd.DataFrame(rows, columns=headers)
+        print('Writing tables to', output_file)
+        desc = [{'sheet_name': 'Problematic Entries',
+                'data_frame': df1,
+                'display_name': 'Problematic_Entries'},
+                {'sheet_name': 'Correcting JE',
+                'data_frame': df2,
+                'display_name': 'Correcting_JE'},
+                {'sheet_name': 'Summary Table',
+                'data_frame': df3,
+                'display_name': 'Summary_Table'},
+                {'sheet_name': 'Errors',
+                'data_frame': df0,
+                'display_name': 'Errors'}]
 
-    print('Writing tables to', output_file)
-    desc = [{'sheet_name': 'Problematic Entries',
-             'data_frame': df1,
-             'display_name': 'Problematic_Entries'},
-            {'sheet_name': 'Correcting JE',
-             'data_frame': df2,
-             'display_name': 'Correcting_JE'},
-            {'sheet_name': 'Summary Table',
-             'data_frame': df3,
-             'display_name': 'Summary_Table'},
-            {'sheet_name': 'Errors',
-             'data_frame': df0,
-            'display_name': 'Errors'}]
+        create_xlsx_with_tables(output_file, desc)
 
-    create_xlsx_with_tables(output_file, desc)
-
-    print('RECONCILIATION COMPLETE.')
+        print('RECONCILIATION COMPLETE.')

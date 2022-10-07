@@ -104,7 +104,7 @@ class Tree:
                         post(je, element.payroll_category, element.payroll_name, employee.number, 1100, cr_dept, cr_acct, -t.amount, msg)
                 
                 # Raise an excpetion if the debits and credits in the JE do not balance
-                if round(sum(t.amount for t in je),2) != 0.0:
+                if round(sum(t['Amount'] for t in je),2) != 0.0:
                     raise ValueError(f'Unable to calculate correcting je for {element.payroll_name} for employee {employee.number}')
                 
                 # Add the JE to the larger JE
