@@ -68,7 +68,10 @@ class Tree:
         return (summary_table, fields)
 
     def build_correcting_je(self) -> tuple:
-
+        '''
+        This function builds a correcting journal entry for all unreconciled transactions and
+        returns them in a tuple containing a list of the debits and credits and the list headers.
+        '''
         entries = []
         fields = ['Category', 'Element', 'Employee', 'Company', 'Department', 'Account', 'Amount', 'Description']
 
@@ -86,45 +89,31 @@ class Tree:
             for element, pair_of_lists in elements.items():
                 
                 reconciled, unreconciled = pair_of_lists
-                
+
                 je = []
-                payroll_trans = [x for x in unreconciled if isinstance(x, Transaction.Payroll)]
-                costing_trans = [x for x in unreconciled if isinstance(x, Transaction.Costing)]
-                msg = f'Rev cost err for {employee.number}'
                 
-                if len(payroll_trans) == 0:
-                    # reverse the erronious costing entries
-                    for c in costing_trans:
-                        post(je, element.payroll_category, element.payroll_name, employee.number, c.company, c.department, c.account, -c.amount, msg)
-                else:
-                    # reverse the erronious costing entries
-                    for c in costing_trans:
-                        dept = 90000 if c.account < 400000 else 700001
-                        post(je, element.payroll_category, element.payroll_name, employee.number, 1100, dept, c.account, -c.amount, msg)
-                    dr_acct = element.debit_accounts[0]
-                    cr_acct = element.credit_accounts[0]
-                    dr_dept = 90000 if dr_acct < 400000 else 700001
-                    cr_dept = 90000 if cr_acct < 400000 else 700001
-                    msg = f'Fix cost err for {employee.number}'
-                    # record the correct entry, putting all amounts to one cost center
-                    for p in payroll_trans:
-                        post(je, element.payroll_category, element.payroll_name, employee.number, 1100, dr_dept, dr_acct, p.amount, msg)
-                        post(je, element.payroll_category, element.payroll_name, employee.number, 1100, cr_dept, cr_acct, -p.amount, msg)
+                # Iterate over all the unreconciled transactions.
+                # Reverse the costing transactions and post the payroll transactions.
+                for t in unreconciled:
+                    if isinstance(t, Transaction.Costing):
+                        msg = f'Rev cost err for {employee.number}'
+                        post(je, element.payroll_category, element.payroll_name, employee.number, t.company, t.department, t.account, -t.amount, msg)
+                    if isinstance(t, Transaction.Payroll):
+                        dr_acct = element.debit_accounts[0]
+                        cr_acct = element.credit_accounts[0]
+                        dr_dept = 90000 if dr_acct < 400000 else 700001
+                        cr_dept = 90000 if cr_acct < 400000 else 700001
+                        msg = f'Fix cost err for {employee.number}'
+                        post(je, element.payroll_category, element.payroll_name, employee.number, 1100, dr_dept, dr_acct, t.amount, msg)
+                        post(je, element.payroll_category, element.payroll_name, employee.number, 1100, cr_dept, cr_acct, -t.amount, msg)
                 
-                # add the je to the list
-                entries.extend(je)
-                
-                # verify the accruacy of the correcting je
-                diff = self.__calc_diff__(employee, element, reconciled, unreconciled)
-                diff -= sum(x['Amount'] for x in je if int(x['Account']) in element.debit_accounts)
-                
-                # if there are unreconciled payroll transactions and the difference is not zero, then raise and exception
-                # or if the sum of debits and credits in the correcting je is not zero, then raise an exception
-                if (len(payroll_trans) > 1 and round(diff, 2) != 0.0) or round(sum(x['Amount'] for x in je), 2) != 0.0:
-                    for x in unreconciled:
-                        print(x)
+                # Raise an excpetion if the debits and credits in the JE do not balance
+                if round(sum(t.amount for t in je),2) != 0.0:
                     raise ValueError(f'Unable to calculate correcting je for {element.payroll_name} for employee {employee.number}')
-        
+                
+                # Add the JE to the larger JE
+                entries.extend(je)
+
         return (entries, fields)
 
     def build_unreconciled_entries(self) -> tuple:
@@ -153,25 +142,28 @@ class Tree:
                 _, unreconciled = pair_of_lists
 
                 note = ''
-                costing = [x for x in unreconciled if isinstance(x, Transaction.Costing)]
-                payroll = [x for x in unreconciled if isinstance(x, Transaction.Payroll)]
-
-                cost_len = len(costing)
-                payroll_len = len(payroll)
-
-                if cost_len > 0 and payroll_len > 0:
+                c = 0
+                p = 0
+                
+                for t in unreconciled:
+                    if isinstance(t, Transaction.Costing):
+                        c += 1
+                    if isinstance(t, Transaction.Payroll):
+                        p += 1
+                
+                if c > 0 and p > 0:
                     note = 'Costing and payroll dollar amounts are different'
-                if cost_len > 0 and payroll_len == 0:
+                elif c > 0 and p == 0:
                     note = 'Costing file entry does not have a corresponding payroll register entry'
-                if cost_len == 0 and payroll_len > 0:
+                elif c == 0 and p > 0:
                     note = 'Payroll register entry was not costed'
-
-                for tran in costing:
-                    post('Costing files', element.costing_category, element.costing_name, employee, tran.company, tran.department, tran.account, tran.amount, note)
-
-                for tran in payroll:
-                    post('Payroll register', element.payroll_category, element.payroll_name, employee, 'n/a', 'n/a', 'n/a', tran.amount, note)
-
+                
+                for t in unreconciled:
+                    if isinstance(t, Transaction.Costing):
+                        post('Costing files', element.costing_category, element.costing_name, employee, t.company, t.department, t.account, t.amount, note)
+                    elif isinstance(t, Transaction.Payroll):
+                        post('Payroll register', element.payroll_category, element.payroll_name, employee, 'n/a', 'n/a', 'n/a', t.amount, note)
+                
         return (entries, fields)
 
     def reconcile(self) -> list:
@@ -287,8 +279,7 @@ class Tree:
                 if round(sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Costing)), 2) != 0.0:
                     raise ValueError(f'Reconciled debits do not equal reconciled credits for "{element.payroll_name}" for employee {employee.number}.')
 
-                # If there is an unreconciled difference between the payroll transaction(s) and
-                # the costing transactions, then log an error.
+                # If there is a difference between the payroll transaction(s) and the costing transactions, then log an error.
                 p = sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Payroll))
                 c = sum(trans.amount for trans in reconciled if isinstance(trans, Transaction.Costing) and trans.account in element.debit_accounts)
                 diff = round(p - c, 2)
