@@ -88,7 +88,7 @@ class Tree:
         for employee, elements in self.tree.items():
             for element, pair_of_lists in elements.items():
                 
-                reconciled, unreconciled = pair_of_lists
+                _, unreconciled = pair_of_lists
 
                 je = []
                 
