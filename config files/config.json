@@ -1,23 +1,20 @@
 {
     "Name Substitutions": {
-        "Work State Income Tax": "Residence State Income Tax",
-        "Residence State Supplemental Income Tax": "Residence State Income Tax",
-        "Federal Income Tax Not Taken": "Federal Income Tax",
-        "Residence State Income Tax Not Taken": "Residence State Income Tax",
-        "Medicare Employee Tax Not Taken": "Medicare Employee Tax",
-        "Social Security Employee Tax Not Taken": "Social Security Employee Tax",
-        "Work City Income Tax": "Residence City Income Tax",
-        "Bonus Day Off With Pay": "Regular"
+        "pay element name substitutions": "should be included in this dictionary",
+        "the current name does here": "the replacement name goes here, for example...",
+        "FIT Withheld": "Federal Income Tax Withholding",
+        "SIT Withheld": "State Income Tax Withholding"
     },
     "Input Files": [
-        "",
-        "",
-        ""
+        "the path and filename for all input files should be listed here",
+        "input files must be in csv format using standard ANSI encoding",
+        "exclude the file extension from the filename when adding to this list",
+        "remember to separate each path with a comma"
     ],
-    "Output File": "",
+    "Output File": "the path and filename of the output file goes here",
     "Local Install Paths": [
-        "c:\\users\\smitchris\\appdata\\roaming\\python\\python39\\site-packages",
-        "C:\\Users\\smitchris\\AppData\\Roaming\\Python\\Python39\\Scripts"
+        "path(s) to local user installation directory(ies) for python modules goes here",
+        "remember to separate each path with a comma"
     ],
-    "Elements File": "./config files/elements.csv"
+    "Elements File": "the path and filename of the csv file (in ANSI encoding) that contains the elements table does here"
 }
