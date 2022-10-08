@@ -27,7 +27,7 @@ Otherwise, please proceed to https://www.python.org/downloads/ to download a cop
 
 Once Python is installed on your computer.
 
-![How to download PayrollCostingAudit](img/download_menu.png.png "Click on Code then Download Zip")
+![How to download PayrollCostingAudit](./img/download_menu.png.png "Click on Code then Download Zip")
 
 ## Dependencies
 
