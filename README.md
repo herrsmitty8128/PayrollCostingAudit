@@ -27,9 +27,11 @@ Otherwise, please proceed to https://www.python.org/downloads/ to download a cop
 
 Once Python is installed on your computer.
 
+![How to download PayrollCostingAudit](img/download_menu.png.png "Click on Code then Download Zip")
+
 ## Dependencies
 
-Most of the modules required by PayrollCostingAudit are included with Python 3. However, there are two exceptions (listed below):
+Most of the modules required by _PayrollCostingAudit_ are included with Python 3. However, there are two exceptions (listed below):
 
 - openpyxl (see https://pypi.org/project/openpyxl/ for more information)
 - pandas (see https://pypi.org/project/pandas/ for more information)
@@ -38,6 +40,10 @@ These modules can be installed by opening a command line terminal and running th
 
 ```
 python3 -m pip install openpyxl pandas
+```
+*or*
+```
+python -m pip install openpyxl pandas
 ```
 
 On MS Windows, if you are not logged in as a system administator then pip will default to a local user installation. If this occurs, then you should be sure to include the full path to the local user installation directory in the "Local Install Paths" listing in the config.json file that accompanies _PayrollCostingAudit_.
