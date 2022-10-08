@@ -9,12 +9,16 @@
         "the path and filename for all input files should be listed here",
         "input files must be in csv format using standard ANSI encoding",
         "exclude the file extension from the filename when adding to this list",
-        "remember to separate each path with a comma"
+        "always use a forward slash in the path, never use backslashes",
+        "include a comma after each file and path in the list except after the last one, for example...",
+        "c:/my directory/file1",
+        "c:/my directory/file2"
     ],
     "Output File": "the path and filename of the output file goes here",
     "Local Install Paths": [
         "path(s) to local user installation directory(ies) for python modules goes here",
-        "remember to separate each path with a comma"
+        "put one path and filename on each line surrounded by quotation marks",
+        "include a comma after each file and path in the list except after the last one"
     ],
     "Elements File": "the path and filename of the csv file (in ANSI encoding) that contains the elements table does here"
 }

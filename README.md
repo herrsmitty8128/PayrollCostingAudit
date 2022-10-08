@@ -1,0 +1,47 @@
+# PayrollCostingAudit
+
+A program written in Python 3 to reconcile the detail payroll register to the detail costing reports produced by a certain cloud-based ERP payroll system. 
+
+## License
+
+_PayrollCostingAudit_ is licensed under the MIT License. Please read the LICENSE.txt file included herein for more information.
+
+## Installation
+
+The first step to installing and running _PayrollCostingAudit_ is to be sure that Python 3 is installed on your computer. If you are planning to use this program on your work computer, then please consult your system administrator or IT department for assistance installing Python 3.
+
+To determine if Python 3 is already installed on your computer, open a command line terminal, type the following, and press _Enter_:
+
+```
+python3 --version
+```
+*or*
+```
+python --version
+```
+If Python 3 is already installed then you will see the following displayed (the actual numbers may be different, depending upon the version of Python that is installed on your computer):
+```
+Python 3.10.6
+```
+Otherwise, please proceed to https://www.python.org/downloads/ to download a copy of Python 3 and obtain installation instructions for Python.
+
+Once Python is installed on your computer.
+
+## Dependencies
+
+Most of the modules required by PayrollCostingAudit are included with Python 3. However, there are two exceptions (listed below):
+
+- openpyxl
+- pandas
+
+These modules can be installed by opening a command line terminal and running the following command:
+
+```
+python3 -m pip install openpyxl pandas
+```
+
+On MS Windows, if you are not logged in as a system administator then pip will default to a local user installation. If this occurs, then you should be sure to included the full path to the local user installation directory in the "Local Install Paths" listing in the config.json file.
+
+On Linux, if you are not logged in as a root user then be sure to prepend the commands above with _sudo_.
+
+## Instructions for Use
