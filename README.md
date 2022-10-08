@@ -25,9 +25,11 @@ Python 3.10.6
 ```
 Otherwise, please proceed to https://www.python.org/downloads/ to download a copy of Python 3 and obtain installation instructions for Python.
 
-Once Python is installed on your computer you can download _PayrollCostingAudit_ by clicking on the green _Code_ drop-down menu and then click on _Download Zip_.
+Once Python is installed on your computer you can download _PayrollCostingAudit_ by navitating to this repository https://github.com/herrsmitty8128/PayrollCostingAudit, clicking on the green _Code_ drop-down menu, and then clicking on _Download Zip_. 
 
 ![How to download PayrollCostingAudit](https://github.com/herrsmitty8128/PayrollCostingAudit/blob/main/img/download_menu.png)
+
+Then download the zip file to a local directory of your choosing, where you should then extract everything in the zip file. Once the files are extracted and Python 3 is installed. You should proceed to the _Dependencies_ section below.
 
 ## Dependencies
 
