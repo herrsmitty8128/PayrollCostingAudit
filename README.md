@@ -76,7 +76,7 @@ The elements file is a data table in CSV format using ANSI encoding. It must con
 - "Credit Account": A semicolon delimited list of the general ledger account numbers that are permitted to be credited by the corresponding element.
 - "Should Cost": A boolean field that indicates whether or not the corresponding payroll element should be costed. The value of this field must be either "TRUE" or "FALSE". If the value for an element is "FALSE" then that element is excluded from the audit process.
 
-The full path and filename of the elements file must be saved in the "Elements File" field of the config.json file that accompanies _PayrollCostingAudit_. The elements file can be saved in any location that is accessible by the user. It can also give the file a name of your choosing. However, the file MUST be in CSV format using ANSI encoding and include all the aforementioned fields for all payroll and costing elements.
+The full path and filename of the elements file must be saved in the "Elements File" field of the config.json file that accompanies _PayrollCostingAudit_. The elements file can be saved in any location that is accessible by the user. You can also give the file a name of your choosing. However, the file MUST be in CSV format using ANSI encoding and include all the aforementioned fields for all payroll and costing elements.
 
 Below is a short example of the element file viewed in a text editor. Most popular spreadsheet applications also support CSV file format and can be used to create and edit the file.
 
