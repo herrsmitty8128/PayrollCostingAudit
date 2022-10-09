@@ -88,12 +88,34 @@ Below is a short example of the element file viewed in a text editor. Most popul
 
 ### Step 2: Update the config.json file that accompanies _PayrollCostingAudit_.
 
-The config.json file is a file that contains the information necessary to 
+The config.json file is a file that contains the information necessary for the processing of _PayrollCostingAudit_. The file uses Javascript Object Notation ("JSON") file format. Please refer to https://www.w3schools.com/js/js_json.asp for a tutorial about the JSON format.
 
 - "Name Substitutions"
 - "Input Files"
 - "Output File"
 - "Local Install Paths"
 - "Elements File"
+
+Here is an example of the config.json file as viewed with a text editor:
+
+```json
+{
+    "Name Substitutions": {
+        "FIT Withheld": "Federal Income Tax Withholding",
+        "SIT Withheld": "State Income Tax Withholding"
+    },
+    "Input Files": [
+        "c:/my directory/input files/costing file1",
+        "c:/my directory/input files/costing file2",
+        "c:/my directory/input files/payroll register"
+    ],
+    "Output File": "c:/my directory/output files/output file PPD12",
+    "Local Install Paths": [
+        "c:/users/username/program files/python/scripts",
+        "c:/users/username/program files/python/other stuff"
+    ],
+    "Elements File": "c:/my directory/output files/output file PPD12"
+}
+```
 
 ### Step 3: Run the app.py python script.
