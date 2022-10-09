@@ -53,3 +53,47 @@ On MS Windows, if you are not logged in as a system administator then pip will d
 On Linux, if you are not logged in as a root user then be sure to prepend the commands above with _sudo_.
 
 ## Instructions for Use
+
+There are three basic steps required to use _PayrollCostingAudit_:
+
+- Create/update the elements CSV file
+- Update the config.json file
+- Run the app.py python script
+
+### Step 1: Create or Update the elements CSV file with a list of all payroll and costing elements.
+
+The elements file contains a list of all payroll elements, which costing elements they correspond to, and which general ledger accounts should be debited and credited by each element. _PayrollCostingAudit_ uses this file as a master list against which all payroll and costing elements are compared. During the audit process, any situation that is inconsistent with the information in this file is considered by the program as an error or exception.
+
+Each payroll element and costing element must appear only once in the file and there must be a one-to-one relationship between the two. If an element appears more than one time in the file, or if the payroll and costing elements do not have a one-to-one relationship, then _PayrollCostingAudit_ can not produce accruate results.
+
+The elements file is a data table in CSV format using ANSI encoding. It must contain each of the following headers:
+
+- "Payroll Name": The name of the payroll element.
+- "Payroll Category": The category name of the payroll element.
+- "Costing Name": The name of the costing element.
+- "Costing Category": The category name of the costing element.
+- "Debit Account": A semicolon delimited list of the general ledger account numbers that are permitted to be debited by the corresponding element.
+- "Credit Account": A semicolon delimited list of the general ledger account numbers that are permitted to be credited by the corresponding element.
+- "Should Cost": A boolean field that indicates whether or not the corresponding payroll element should be costed. The value of this field must be either "TRUE" or "FALSE". If the value for an element is "FALSE" then that element is excluded from the audit process.
+
+The full path and filename of the elements file must be saved in the "Elements File" field of the config.json file that accompanies _PayrollCostingAudit_. The elements file can be saved in any location that is accessible by the user. It can also give the file a name of your choosing. However, the file MUST be in CSV format using ANSI encoding and include all the aforementioned fields for all payroll and costing elements.
+
+Below is a short example of the element file viewed in a text editor. Most popular spreadsheet applications also support CSV file format and can be used to create and edit the file.
+
+```CS
+"Payroll Name","Payroll Category","Costing Name","Costing Category","Debit Account","Credit Account","Should Cost"
+"Regular pay","Earnings","Regular payroll","Reg Earnings",54000;53000;51000,21000,TRUE
+"FIT Withheld","Withholdings","Federal Tax Withheld","Employee Withholdings",22000;23000,21000,TRUE
+```
+
+### Step 2: Update the config.json file that accompanies _PayrollCostingAudit_.
+
+The config.json file is a file that contains the information necessary to 
+
+- "Name Substitutions"
+- "Input Files"
+- "Output File"
+- "Local Install Paths"
+- "Elements File"
+
+### Step 3: Run the app.py python script.

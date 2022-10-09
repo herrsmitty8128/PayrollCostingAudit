@@ -11,7 +11,7 @@ class Element:
         self.costing_category = csvrow['Costing Category'].strip()
         self.debit_accounts = [int(x.strip()) for x in csvrow['Debit Account'].split(';')]
         self.credit_accounts = [int(x.strip()) for x in csvrow['Credit Account'].split(';')]
-        self.should_cost = True if csvrow['Should Cost'].strip() == 'TRUE' else False
+        self.should_cost = True if csvrow['Should Cost'].strip().casefold() == 'TRUE'.casefold() else False
 
     def __eq__(self, other) -> bool:
         return True if isinstance(other, Element) and self.payroll_name == other.payroll_name else False
