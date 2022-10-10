@@ -1,6 +1,21 @@
 # PayrollCostingAudit
 
-A program written in Python 3 to reconcile the detail payroll register to the detail costing reports produced by a certain cloud-based ERP payroll system. 
+A program written in Python 3 to reconcile the detail payroll register to the detail costing reports produced by the Oracle Cloud ERP payroll system. The program performs the following audit steps on each payroll element for each employee in the detailed payroll register:
+
+- Validates the existence of all payroll and costing element names against a master list referred to as the "elements file". 
+- Recalculates net pay for each employee on the payroll register.
+- Verifies that the correct general ledger accounts are debited and credited for each element on the costing file(s).
+- Verifies that all debits and credits balance for each payroll element for each employee on the costing file(s). 
+- Reconciles the debits and credits for each pay element on the costing file(s) to the payroll register.
+
+Any situation that is inconsistent with the aforementioned items is treated by the program as an error or exception. The program outputs a spreadsheet with a tab for each of the following items:
+
+- A list of all entries on the payroll register and costing files(s) that are considered "problematic".
+- A correcting journal entry that can be posted to fix the problematic entries.
+- A log of all errors and exceptions encountered during the audit process.
+- A reconciliation in T-account format.
+
+The program will terminate and report an error if it encounters a run-time error. For example, if the element file or the config.json file are not properly updated or formatted.
 
 ## License
 
@@ -85,8 +100,8 @@ The config.json file is a file that contains the information necessary for the p
 - "Name Substitutions": A set of name:value pairs used to replace an element's name with another name. This is useful in situations where elements in the payroll register do not have a one-to-one relationship with elements on the costing register.
 - "Input Files": A list of the full path and filename of all the input files. Input files should consist of one or more detail payroll registers and one or more detailed costing registers.
 - "Output File": The full path and filename of the outputfile that will contain the results of the audit.
-- "Local Install Paths": A list of one or more paths to the directory(ies) where local user installation of Python modules are located. These paths are added to the Python interpreter's environment paths to ensure that it can locate any user specific installations of Python modules.
-- "Elements File": The full path and filename of the elements file (described in step 1, above) in CSV format using ANSI encoding.
+- "Local Install Paths": A list of one or more paths to the directory(ies) where local user installation of Python modules are located. These paths are added to the Python interpreter's environment at run time to ensure that it can locate any user specific installations of Python modules.
+- "Elements File": The full path and filename of the elements file (described in Step 1, above) in CSV format using ANSI encoding.
 
 Here is an example of the config.json file as viewed with a text editor:
 
@@ -112,7 +127,7 @@ Here is an example of the config.json file as viewed with a text editor:
 
 ### Step 3: Run the app.py python script.
 
-_PayrollCostingAudit_ can be executed by opening a command line terminal, navigating to the directory where you extracted the program files, typing _python3 app.py, pressing _Enter_. For example:
+_PayrollCostingAudit_ can be executed by opening a command line terminal, navigating to the directory where you extracted the program files, typing _python3 app.py_, pressing _Enter_. For example:
 
 ```
 cd c:/users/your username/a directory/another directory/PayrollCostingAudit
