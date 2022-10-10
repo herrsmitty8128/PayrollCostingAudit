@@ -15,10 +15,6 @@ To determine if Python 3 is already installed on your computer, open a command l
 ```
 python3 --version
 ```
-*or*
-```
-python --version
-```
 If Python 3 is already installed then you will see the following displayed (the actual numbers may be different, depending upon the version of Python that is installed on your computer):
 ```
 Python 3.10.6
@@ -43,10 +39,6 @@ These modules can be installed by opening a command line terminal and running th
 ```
 python3 -m pip install openpyxl pandas
 ```
-*or*
-```
-python -m pip install openpyxl pandas
-```
 
 On MS Windows, if you are not logged in as a system administator then pip will default to a local user installation. If this occurs, then you should be sure to include the full path to the local user installation directory in the "Local Install Paths" listing in the config.json file that accompanies _PayrollCostingAudit_.
 
@@ -56,11 +48,11 @@ On Linux, if you are not logged in as a root user then be sure to prepend the co
 
 There are three basic steps required to use _PayrollCostingAudit_:
 
-- Create/update the elements CSV file
-- Update the config.json file
-- Run the app.py python script
+1. Create/update the elements CSV file
+2. Update the config.json file
+3. Run the app.py python script
 
-### Step 1: Create or Update the elements CSV file with a list of all payroll and costing elements.
+### Step 1: Create or update the elements CSV file with a list of all payroll and costing elements.
 
 The elements file contains a list of all payroll elements, which costing elements they correspond to, and which general ledger accounts should be debited and credited by each element. _PayrollCostingAudit_ uses this file as a master list against which all payroll and costing elements are compared. During the audit process, any situation that is inconsistent with the information in this file is considered by the program as an error or exception.
 
@@ -88,13 +80,13 @@ Below is a short example of the element file viewed in a text editor. Most popul
 
 ### Step 2: Update the config.json file that accompanies _PayrollCostingAudit_.
 
-The config.json file is a file that contains the information necessary for the processing of _PayrollCostingAudit_. The file uses Javascript Object Notation ("JSON") file format. Please refer to https://www.w3schools.com/js/js_json.asp for a tutorial about the JSON format.
+The config.json file is a file that contains the information necessary for the processing of _PayrollCostingAudit_. The file uses Javascript Object Notation ("JSON") file format. Please refer to https://www.w3schools.com/js/js_json.asp for a tutorial about the JSON format. The value of each field in the file described below must be valid before _PayrollCostingAudit_ can be executed.
 
-- "Name Substitutions"
-- "Input Files"
-- "Output File"
-- "Local Install Paths"
-- "Elements File"
+- "Name Substitutions": A set of name:value pairs used to replace an element's name with another name. This is useful in situations where elements in the payroll register do not have a one-to-one relationship with elements on the costing register.
+- "Input Files": A list of the full path and filename of all the input files. Input files should consist of one or more detail payroll registers and one or more detailed costing registers.
+- "Output File": The full path and filename of the outputfile that will contain the results of the audit.
+- "Local Install Paths": A list of one or more paths to the directory(ies) where local user installation of Python modules are located. These paths are added to the Python interpreter's environment paths to ensure that it can locate any user specific installations of Python modules.
+- "Elements File": The full path and filename of the elements file (described in step 1, above) in CSV format using ANSI encoding.
 
 Here is an example of the config.json file as viewed with a text editor:
 
@@ -119,3 +111,10 @@ Here is an example of the config.json file as viewed with a text editor:
 ```
 
 ### Step 3: Run the app.py python script.
+
+_PayrollCostingAudit_ can be executed by opening a command line terminal, navigating to the directory where you extracted the program files, typing _python3 app.py, pressing _Enter_. For example:
+
+```
+cd c:/users/your username/a directory/another directory/PayrollCostingAudit
+python3 app.py
+```
