@@ -105,16 +105,16 @@ if __name__ == '__main__':
         print('Writing tables to', output_file)
         desc = [{'sheet_name': 'Problematic Entries',
                 'data_frame': df1,
-                'display_name': 'Problematic_Entries'},
+                 'display_name': 'Problematic_Entries'},
                 {'sheet_name': 'Correcting JE',
                 'data_frame': df2,
-                'display_name': 'Correcting_JE'},
+                 'display_name': 'Correcting_JE'},
                 {'sheet_name': 'Summary Table',
                 'data_frame': df3,
-                'display_name': 'Summary_Table'},
+                 'display_name': 'Summary_Table'},
                 {'sheet_name': 'Errors',
                 'data_frame': df0,
-                'display_name': 'Errors'}]
+                 'display_name': 'Errors'}]
 
         create_xlsx_with_tables(output_file, desc)
 
