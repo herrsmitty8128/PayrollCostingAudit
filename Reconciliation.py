@@ -26,42 +26,61 @@ class Tree:
     def __init__(self):
         self.tree = {}
 
-    def __calc_diff__(self, employee: Employee.Employee, element: Element.Element, reconciled: list, unreconciled: list) -> float:
-        pr = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Payroll))
-        cost = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Costing) and x.account in element.debit_accounts)
-        return round(pr - cost, 2)
-
     def build_summary_table(self) -> list:
+        '''
+        This function productes a table with one row for each element.
+        '''
+
+        def calc_diff(element: Element.Element, unreconciled: list) -> float:
+            '''
+            This nested function calculates the difference between the unreconciled payroll
+            and unreconciled costing elements.
+            '''
+            pr = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Payroll))
+            cost = sum(x.amount for x in unreconciled if isinstance(x, Transaction.Costing) and x.account in element.debit_accounts)
+            return round(pr - cost, 2)
+
         summary_table = []
         summary = {}
-        headers = set(['Payroll Total'])
-        for employee, elements in self.tree.items():
+        account_numbers = set()
+
+        for _, elements in self.tree.items():
             for element, pair_of_lists in elements.items():
+
                 reconciled, unreconciled = pair_of_lists
+
                 ctr = summary.get(element, None)
                 if ctr is None:
                     ctr = Counter()
                     summary[element] = ctr
+
                 ctr['Payroll Total'] += sum(r.amount for r in reconciled if isinstance(r, Transaction.Payroll))
                 ctr['Payroll Total'] += sum(r.amount for r in unreconciled if isinstance(r, Transaction.Payroll))
+
                 for r in [x for x in reconciled if isinstance(x, Transaction.Costing)]:
                     acct = str(r.account)
-                    headers.add(acct)
+                    account_numbers.add(acct)
                     ctr[acct] += r.amount
+
                 for r in [x for x in unreconciled if isinstance(x, Transaction.Costing)]:
                     acct = str(r.account)
-                    headers.add(acct)
+                    account_numbers.add(acct)
                     ctr[acct] += r.amount
-                ctr['Difference'] += self.__calc_diff__(employee, element, reconciled, unreconciled)
-        fields = ['Category', 'Element', 'Payroll Total', 'Difference']
-        fields.extend(sorted([h for h in headers if h != 'Payroll Total' and h != 'Difference']))
-        default_values = {h: 0.0 for h in headers}
+
+                ctr['Difference'] += calc_diff(element, unreconciled)
+
+        column_names = ['Category', 'Element', 'Payroll Total', 'Difference']
+        column_names.extend(sorted(account_numbers))
+        default_values = {name: 0.0 for name in column_names}
+
         for element, counter in summary.items():
-            row = {'Category': element.payroll_category, 'Element': element.payroll_name}
-            row.update(default_values)
+            row = dict(default_values)
+            row['Category'] = element.payroll_category
+            row['Element'] = element.payroll_name
             row.update(counter)
             summary_table.append(row)
-        return (summary_table, fields)
+
+        return (summary_table, column_names)
 
     def build_correcting_je(self) -> tuple:
         '''
@@ -83,17 +102,18 @@ class Tree:
 
         for employee, elements in self.tree.items():
             for element, pair_of_lists in elements.items():
-                
+
                 _, unreconciled = pair_of_lists
 
                 je = []
-                
+
                 # Iterate over all the unreconciled transactions.
-                # Reverse the costing transactions and post the payroll transactions.
                 for t in unreconciled:
+                    # Reverse the costing transactions
                     if isinstance(t, Transaction.Costing):
                         msg = f'Rev cost err for {employee.number}'
                         post(je, element.payroll_category, element.payroll_name, employee.number, t.company, t.department, t.account, -t.amount, msg)
+                    # Post the payroll transactions
                     if isinstance(t, Transaction.Payroll):
                         dr_acct = element.debit_accounts[0]
                         cr_acct = element.credit_accounts[0]
@@ -102,11 +122,11 @@ class Tree:
                         msg = f'Fix cost err for {employee.number}'
                         post(je, element.payroll_category, element.payroll_name, employee.number, 1100, dr_dept, dr_acct, t.amount, msg)
                         post(je, element.payroll_category, element.payroll_name, employee.number, 1100, cr_dept, cr_acct, -t.amount, msg)
-                
+
                 # Raise an excpetion if the debits and credits in the JE do not balance
-                if round(sum(t['Amount'] for t in je),2) != 0.0:
+                if round(sum(t['Amount'] for t in je), 2) != 0.0:
                     raise ValueError(f'Unable to calculate correcting je for {element.payroll_name} for employee {employee.number}')
-                
+
                 # Add the JE to the larger JE
                 entries.extend(je)
 
@@ -140,26 +160,26 @@ class Tree:
                 note = ''
                 c = 0
                 p = 0
-                
+
                 for t in unreconciled:
                     if isinstance(t, Transaction.Costing):
                         c += 1
                     if isinstance(t, Transaction.Payroll):
                         p += 1
-                
+
                 if c > 0 and p > 0:
                     note = 'Costing and payroll dollar amounts are different'
                 elif c > 0 and p == 0:
                     note = 'Costing file entry does not have a corresponding payroll register entry'
                 elif c == 0 and p > 0:
                     note = 'Payroll register entry was not costed'
-                
+
                 for t in unreconciled:
                     if isinstance(t, Transaction.Costing):
                         post('Costing files', element.costing_category, element.costing_name, employee, t.company, t.department, t.account, t.amount, note)
                     elif isinstance(t, Transaction.Payroll):
                         post('Payroll register', element.payroll_category, element.payroll_name, employee, 'n/a', 'n/a', 'n/a', t.amount, note)
-                
+
         return (entries, fields)
 
     def reconcile(self) -> list:
